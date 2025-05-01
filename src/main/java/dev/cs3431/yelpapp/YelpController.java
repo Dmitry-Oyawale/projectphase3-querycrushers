@@ -26,6 +26,7 @@ public class YelpController {
 
     @FXML private Label searchText;
     @FXML private ComboBox<String> stateComboBox;
+    @FXML private ComboBox<String> cityComboBox;
     @FXML private Button filterButton;
     @FXML private ListView<String> categoryList;
     @FXML private Button searchButton;
@@ -36,7 +37,12 @@ public class YelpController {
 
     @FXML void initialize() {
         updateStates();
-
+        stateComboBox.setOnAction(event -> {
+            String state = stateComboBox.getValue();
+            if (state != null) {
+                updateCities(state);
+            }
+        });
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
         cityColumn.setCellValueFactory(new PropertyValueFactory<>("city"));
@@ -113,6 +119,42 @@ public class YelpController {
         stateComboBox.setItems(states);
 
         try {  connection.close(); } catch (SQLException e) { e.printStackTrace();}
+    }
+
+    private void updateCities(String state) {
+        ObservableList<String> cities = FXCollections.observableArrayList();
+
+        String stateQuery = """
+            SELECT DISTINCT state, city
+            FROM business
+            WHERE state = ?
+            ORDER BY city
+        """;
+
+        try {
+            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(stateQuery)) {
+            ps.setString(1, state);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                cities.add(rs.getString("city"));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+
+        cityComboBox.setItems(cities);
+
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateCategories(String state) {
