@@ -1,7 +1,6 @@
-package dev.cs3431.yelpapp;
+package querycrusher.yelpapp;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -9,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -23,19 +23,39 @@ public class YelpController {
     private static final String JDBC_USER = dotenv.get("JDBC_USER");
     private static final String JDBC_PASS = dotenv.get("JDBC_PASS");
     private Connection connection;
+    @FXML
+    private Label searchText;
+    @FXML
+    private ComboBox<String> stateComboBox;
+    @FXML
+    private ComboBox<String> cityComboBox;
+    @FXML
+    private Button filterButton;
+    @FXML
+    private ListView<String> categoryList;
+    @FXML
+    private Button searchButton;
+    @FXML
+    private TableView<Business> businessTable;
+    @FXML
+    private TableColumn<Business, String> nameColumn;
+    @FXML
+    private TableColumn<Business, String> addressColumn;
+    @FXML
+    private TableColumn<Business, String> cityColumn;
+    @FXML
+    private TableColumn<Business, String> starsColumn;
+    @FXML
+    private TableColumn<Business, String> tipsColumn;
+    @FXML
+    private TableColumn<Business, String> latitudeColumn;
+    @FXML
+    private TableColumn<Business, String> longitudeColumn;
 
-    @FXML private Label searchText;
-    @FXML private ComboBox<String> stateComboBox;
-    @FXML private ComboBox<String> cityComboBox;
-    @FXML private Button filterButton;
-    @FXML private ListView<String> categoryList;
-    @FXML private Button searchButton;
-    @FXML private TableView<Business> businessTable;
-    @FXML private TableColumn<Business, String> nameColumn;
-    @FXML private TableColumn<Business, String> addressColumn;
-    @FXML private TableColumn<Business, String> cityColumn;
 
-    @FXML void initialize() {
+
+    @FXML
+    void initialize() {
         updateStates();
         stateComboBox.setOnAction(event -> {
             String state = stateComboBox.getValue();
@@ -43,19 +63,24 @@ public class YelpController {
                 updateCities(state);
             }
         });
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
-        cityColumn.setCellValueFactory(new PropertyValueFactory<>("city"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
+        addressColumn.setCellValueFactory(new PropertyValueFactory<>("Address"));
+        cityColumn.setCellValueFactory(new PropertyValueFactory<>("City"));
+        starsColumn.setCellValueFactory(new PropertyValueFactory<>("Stars"));
+        tipsColumn.setCellValueFactory(new PropertyValueFactory<>("Tips"));
+        latitudeColumn.setCellValueFactory(new PropertyValueFactory<>("Latitude"));
+        longitudeColumn.setCellValueFactory(new PropertyValueFactory<>("Longitude"));
 
         categoryList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         categoryList.setItems(FXCollections.observableArrayList());
-        stateComboBox.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((observable, oldState, newState) -> {
-                    if (newState != null) {
-                        updateCategories(newState);
-                    }
-                });
+
+//        stateComboBox.getSelectionModel()
+//                .selectedItemProperty()
+//                .addListener((observable, oldState, newState) -> {
+//                    if (newState != null) {
+//                        updateCategories(newState);
+//                    }
+//                });
         filterButton.setOnAction(event -> {updateCategories(stateComboBox.getSelectionModel().getSelectedItem());});
         searchButton.setOnAction(event -> {searchBusinesses();});
         businessTable.setOnMouseClicked(event -> {
@@ -69,7 +94,7 @@ public class YelpController {
     }
 
     private void loadBusinessPage(Business selected){
-        try {
+        try{
             FXMLLoader fxmlLoader = new FXMLLoader(YelpApp.class.getResource("businessDetails.fxml"));
             Parent root = fxmlLoader.load();
             BusinessDetailsController controller = fxmlLoader.getController();
@@ -102,11 +127,13 @@ public class YelpController {
             FROM business
             ORDER BY state
         """;
+
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+
         try (PreparedStatement ps = connection.prepareStatement(stateQuery)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -118,7 +145,11 @@ public class YelpController {
 
         stateComboBox.setItems(states);
 
-        try {  connection.close(); } catch (SQLException e) { e.printStackTrace();}
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateCities(String state) {
@@ -157,25 +188,35 @@ public class YelpController {
         }
     }
 
+    private void searchBusinesses() {
+        String state = stateComboBox.getSelectionModel().getSelectedItem();
+        String city = cityComboBox.getSelectionModel().getSelectedItem();
+        List<String> cats = new ArrayList<>(categoryList.getSelectionModel().getSelectedItems());
+        List<Business> results = queryBusinesses(state, cats, city);
+        businessTable.setItems(FXCollections.observableArrayList(results));
+    }
+
     private void updateCategories(String state) {
-        //String state = stateComboBox.getSelectionModel().getSelectedItem();
+        // String state = stateComboBox.getSelectionModel().getSelectedItem();
         if (state == null) {
             return;
         }
-
         ObservableList<String> categories = FXCollections.observableArrayList();
+
         String stateQuery = """
-            SELECT DISTINCT Category.category_name
-            FROM Category
-            JOIN Business ON Business.business_ID = Category.business_ID
-            WHERE Business.state = ?
-            ORDER BY Category.category_name
+            SELECT DISTINCT category.category_name
+            FROM category
+            JOIN business ON business.business_id = category.business_id
+            WHERE business.state = ?
+            ORDER BY category.category_name
         """;
+
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+
         try (PreparedStatement ps = connection.prepareStatement(stateQuery)) {
             ps.setString(1, state);
             ResultSet rs = ps.executeQuery();
@@ -186,97 +227,106 @@ public class YelpController {
             ex.printStackTrace();
         }
 
+
         categoryList.setItems(categories);
 
-        try {  connection.close(); } catch (SQLException e) { e.printStackTrace();}
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    private void searchBusinesses() {
-        String state = stateComboBox.getSelectionModel().getSelectedItem();
-        List<String> cats = new ArrayList<>(categoryList.getSelectionModel().getSelectedItems());
-        List<Business> results = queryBusinesses(state, cats);
-        businessTable.setItems(FXCollections.observableArrayList(results));
-    }
 
-    private List<Business> queryBusinesses(String state, List<String> categories) {
-
+    private List<Business> queryBusinesses(String state, List<String> categories, String city) {
         List<Business> res = new ArrayList<>();
 
         String businessQuery = """
-            SELECT DISTINCT business_ID, name, street_address, city, latitude, longitude, stars, num_tips\s
-            FROM Business
-            WHERE Business.state = ? 
+            SELECT business_id, name, street_address, city, latitude, longitude, stars, num_tips\s
+            FROM business
+            WHERE business.state = ? AND business.city = ?
         """;
-        // you can iterate over all selected categories as follows. You should add more conditions to your query dynamically for the selected catgories
-        /*
-        for (String cat: categories){
-            businessQuery = businessQuery.concat(" AND ....");
-        } */
-        businessQuery = businessQuery.concat(" ORDER BY name");
-        // to debug, you can print your query string and make sure that it is constructed correctly.
-        
+
+        businessQuery = businessQuery.concat("ORDER BY name");
+
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+
         try (PreparedStatement ps = connection.prepareStatement(businessQuery)) {
-            int count =1; //count will keep track of the parameter count for the query
-            ps.setString(count, state);
-            count++;
+            //int count = 1;
+            ps.setString(1, state);
+            ps.setString(2, city);
+            //count++;
             /*
-            for (String cat: categories) {
-                ps.setString(count, cat)
-                count++;
-            } */
+            for(String cat: categories){
+            ps.setString(count, cat);
+            count++;}
+             */
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 res.add(new Business(
-                        rs.getString("business_ID"),
+                        rs.getString("business_id"),
                         rs.getString("name"),
                         rs.getString("street_address"),
-                        rs.getString("city")
+                        rs.getString("city"),
+                        rs.getDouble("stars"),
+                        rs.getDouble("num_tips"),
+                        rs.getDouble("latitude"),
+                        rs.getDouble("longitude")
                 ));
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
 
-        try {  connection.close(); } catch (SQLException e) { e.printStackTrace();}
+
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return res;
     }
 
     private List<Business> getSimilarBusinesses(Business selected) {
-
         List<Business> res = new ArrayList<>();
 
         String stateQuery = """
-            SELECT business_ID, name, street_address, city
+            SELECT business_id, name, street_address, city
             FROM Business
-            WHERE business_ID = ? 
+            WHERE business_id = ?
         """;
+
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+
         try (PreparedStatement ps = connection.prepareStatement(stateQuery)) {
             ps.setString(1, selected.getId());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 res.add(new Business(
-                        rs.getString("business_ID"),
+                        rs.getString("business_id"),
                         rs.getString("name"),
                         rs.getString("street_address"),
-                        rs.getString("city")
-                ));
+                        rs.getString("city"),
+                        rs.getDouble("stars"), rs.getDouble("num_tips"), rs.getDouble("latitude"), rs.getDouble("longitude")));
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
 
-        try {  connection.close(); } catch (SQLException e) { e.printStackTrace();}
-
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return res;
     }
 
