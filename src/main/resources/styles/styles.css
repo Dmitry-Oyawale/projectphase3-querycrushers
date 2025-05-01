@@ -1,0 +1,47 @@
+.root {
+    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
+    -fx-font-size: 20px;
+    -fx-background-color: #FFFFFF;
+
+    -yelp-color: #3289d5;
+    -yelp-color-light: rgba(137, 197, 230, 0.25);
+    -primary-text: #2D2E2F;
+    -secondary-text: #757280;
+    -selected-text: #C2C0C0;
+    -border-color: #E6E6E6;
+    -title-color: #123f73;
+}
+.subtitle-text {
+    -fx-text-fill: -title-color;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 5px 2px 10px;
+}
+
+.list-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: -border-color;
+    -fx-border-width: 1;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 2px;
+}
+
+
+.list-view .list-cell:filled:selected {
+    -fx-background-color: derive(-yelp-color, 60%);
+    -fx-text-fill: -primary-text;
+    -fx-border-color: -yelp-color;
+    -fx-border-width: 1;
+}
+
+.list-view .list-cell:filled:hover {
+    -fx-background-color: -yelp-color-light;
+    -fx-text-fill: yelp-color;
+    -fx-border-width: 1;
+    -fx-border-color: -yelp-color;
+}
