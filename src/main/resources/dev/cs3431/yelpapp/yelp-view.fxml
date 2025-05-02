@@ -12,33 +12,33 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="querycrusher.yelpapp.YelpController">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.cs3431.yelpapp.YelpController">
    <center>
       <VBox alignment="CENTER" prefHeight="900.0" prefWidth="1600.0" spacing="20.0" styleClass="root">
-          <padding>
-              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-          </padding>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
          <HBox prefHeight="47.0" prefWidth="1557.0">
             <children>
-            
-                <Label fx:id="searchText" styleClass="subtitle-text" text="Search Results">
+
+               <Label fx:id="searchText" styleClass="subtitle-text" text="Search Results">
                   <HBox.margin>
                      <Insets left="10.0" top="10.0" />
                   </HBox.margin></Label>
             </children>
          </HBox>
          <TableView fx:id="businessTable" prefHeight="774.0" prefWidth="1570.0">
-           <columns>
-             <TableColumn fx:id="nameColumn" prefWidth="250.0" text="Name" />
-             <TableColumn fx:id="addressColumn" prefWidth="300.0" text="Address" />
+            <columns>
+               <TableColumn fx:id="nameColumn" prefWidth="250.0" text="Name" />
+               <TableColumn fx:id="addressColumn" prefWidth="300.0" text="Address" />
                <TableColumn fx:id="cityColumn" prefWidth="200.0" text="City" />
                <TableColumn fx:id="starsColumn" prefWidth="150.0" text="Stars" />
                <TableColumn fx:id="tipColumn" prefWidth="150.0" text="Tips" />
                <TableColumn fx:id="latitudeColumn" prefWidth="250.0" text="Latitude" />
                <TableColumn fx:id="longitudeColumn" prefWidth="250.0" text="Longitude" />
-           </columns>
+            </columns>
          </TableView>
-          <Button text="Yelp!" />
+         <Button text="Yelp!" />
       </VBox>
    </center>
    <left>
@@ -85,6 +85,12 @@
                         <Insets />
                      </opaqueInsets>
                   </ListView>
+                  <Label styleClass="subtitle-text" text="Attributes">
+                     <VBox.margin>
+                        <Insets left="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <ListView fx:id="attributeList" prefHeight="281.0" prefWidth="197.0" />
                   <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="23.0" prefWidth="197.0" text="Search">
                      <padding>
                         <Insets bottom="5.0" top="5.0" />
