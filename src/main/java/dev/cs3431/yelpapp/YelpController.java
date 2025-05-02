@@ -1,4 +1,4 @@
-package querycrusher.yelpapp;
+package dev.cs3431.yelpapp;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import javafx.collections.FXCollections;
@@ -81,7 +81,11 @@ public class YelpController {
 //                        updateCategories(newState);
 //                    }
 //                });
-        filterButton.setOnAction(event -> {updateCategories(stateComboBox.getSelectionModel().getSelectedItem());});
+        filterButton.setOnAction(event -> {
+            String selectedState = stateComboBox.getSelectionModel().getSelectedItem();
+            String selectedCity = cityComboBox.getSelectionModel().getSelectedItem();
+            updateCategories(selectedState, selectedCity);
+        });
         searchButton.setOnAction(event -> {searchBusinesses();});
         businessTable.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
@@ -196,46 +200,37 @@ public class YelpController {
         businessTable.setItems(FXCollections.observableArrayList(results));
     }
 
-    private void updateCategories(String state) {
-        // String state = stateComboBox.getSelectionModel().getSelectedItem();
-        if (state == null) {
+    private void updateCategories(String state, String city) {
+        if (state == null || city == null) {
             return;
         }
+
         ObservableList<String> categories = FXCollections.observableArrayList();
 
-        String stateQuery = """
-            SELECT DISTINCT category.category_name
-            FROM category
-            JOIN business ON business.business_id = category.business_id
-            WHERE business.state = ?
-            ORDER BY category.category_name
-        """;
+        String categoryQuery = """
+        SELECT DISTINCT category.category_name
+        FROM category
+        JOIN business ON business.business_id = category.business_id
+        WHERE business.state = ? AND business.city = ?
+        ORDER BY category.category_name
+    """;
 
-        try {
-            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+             PreparedStatement ps = conn.prepareStatement(categoryQuery)) {
 
-        try (PreparedStatement ps = connection.prepareStatement(stateQuery)) {
             ps.setString(1, state);
+            ps.setString(2, city);
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 categories.add(rs.getString("category_name"));
             }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
 
-
         categoryList.setItems(categories);
-
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
     }
 
 
