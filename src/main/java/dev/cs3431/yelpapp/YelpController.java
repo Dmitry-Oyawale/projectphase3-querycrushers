@@ -1,4 +1,4 @@
-package querycrusher.yelpapp;
+package dev.cs3431.yelpapp;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import javafx.collections.FXCollections;
@@ -34,6 +34,8 @@ public class YelpController {
     private Button filterButton;
     @FXML
     private ListView<String> categoryList;
+    @FXML
+    private ListView<String> attributeList;
     @FXML
     private Button searchButton;
     @FXML
@@ -75,6 +77,9 @@ public class YelpController {
         categoryList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         categoryList.setItems(FXCollections.observableArrayList());
 
+        attributeList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        attributeList.setItems(FXCollections.observableArrayList());
+
 //        stateComboBox.getSelectionModel()
 //                .selectedItemProperty()
 //                .addListener((observable, oldState, newState) -> {
@@ -82,7 +87,12 @@ public class YelpController {
 //                        updateCategories(newState);
 //                    }
 //                });
-        filterButton.setOnAction(event -> {updateCategories(stateComboBox.getSelectionModel().getSelectedItem());});
+        filterButton.setOnAction(event -> {
+            String selectedState = stateComboBox.getSelectionModel().getSelectedItem();
+            String selectedCity = cityComboBox.getSelectionModel().getSelectedItem();
+            updateCategories(selectedState, selectedCity);
+            updateAttributes(selectedState, selectedCity);
+        });
         searchButton.setOnAction(event -> {searchBusinesses();});
         businessTable.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
@@ -197,20 +207,21 @@ public class YelpController {
         businessTable.setItems(FXCollections.observableArrayList(results));
     }
 
-    private void updateCategories(String state) {
+    private void updateCategories(String state, String city) {
         // String state = stateComboBox.getSelectionModel().getSelectedItem();
-        if (state == null) {
+        if (state == null || city == null) {
             return;
         }
+
         ObservableList<String> categories = FXCollections.observableArrayList();
 
-        String stateQuery = """
-            SELECT DISTINCT category.category_name
-            FROM category
-            JOIN business ON business.business_id = category.business_id
-            WHERE business.state = ?
-            ORDER BY category.category_name
-        """;
+        String categoryQuery = """
+             SELECT DISTINCT category.category_name
+             FROM category
+             JOIN business ON business.business_id = category.business_id
+             WHERE business.state = ? AND business.city = ?
+             ORDER BY category.category_name
+         """;
 
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
@@ -218,8 +229,9 @@ public class YelpController {
             ex.printStackTrace();
         }
 
-        try (PreparedStatement ps = connection.prepareStatement(stateQuery)) {
+        try (PreparedStatement ps = connection.prepareStatement(categoryQuery)) {
             ps.setString(1, state);
+            ps.setString(2, city);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 categories.add(rs.getString("category_name"));
@@ -238,6 +250,52 @@ public class YelpController {
         }
 
     }
+
+    private void updateAttributes(String state, String city) {
+        // String state = stateComboBox.getSelectionModel().getSelectedItem();
+        if (state == null || city == null) {
+            return;
+        }
+
+        ObservableList<String> attributes = FXCollections.observableArrayList();
+
+        String categoryQuery = """
+             SELECT DISTINCT attribute.attribute_name
+             FROM attribute
+             JOIN business ON business.business_id = attribute.business_id
+             WHERE business.state = ? AND business.city = ?
+             ORDER BY attribute.attribute_name
+         """;
+
+        try {
+            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(categoryQuery)) {
+            ps.setString(1, state);
+            ps.setString(2, city);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                attributes.add(rs.getString("attribute_name"));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+
+        attributeList.setItems(attributes);
+
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
 
 
     @NotNull
