@@ -33,7 +33,7 @@
              <TableColumn fx:id="addressColumn" prefWidth="300.0" text="Address" />
                <TableColumn fx:id="cityColumn" prefWidth="200.0" text="City" />
                <TableColumn fx:id="starsColumn" prefWidth="150.0" text="Stars" />
-               <TableColumn fx:id="tipsColumn" prefWidth="150.0" text="Tips" />
+               <TableColumn fx:id="tipColumn" prefWidth="150.0" text="Tips" />
                <TableColumn fx:id="latitudeColumn" prefWidth="250.0" text="Latitude" />
                <TableColumn fx:id="longitudeColumn" prefWidth="250.0" text="Longitude" />
            </columns>
