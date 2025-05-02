@@ -6,18 +6,18 @@ public class Business{
     private final String address;
     private final String city;
     private final Double stars;
-    private final Double numTips;
+    private final Integer tips;
     private final Double latitude;
     private final Double longitude;
 
 
-    public Business(String id, String name, String address, String city, Double stars, Double numTips, Double latitude, Double longitude) {
+    public Business(String id, String name, String address, String city, Double stars, Integer tips, Double latitude, Double longitude) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.city = city;
         this.stars = stars;
-        this.numTips = numTips;
+        this.tips = tips;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -41,8 +41,8 @@ public class Business{
     public Double getStars() {
         return stars;
     }
-    public Double getNumTips() {
-        return numTips;
+    public Integer getTips() {
+        return tips;
     }
     public Double getLatitude() {
         return latitude;
