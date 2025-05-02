@@ -263,7 +263,7 @@ public class YelpController {
              SELECT DISTINCT attribute.attribute_name
              FROM attribute
              JOIN business ON business.business_id = attribute.business_id
-             WHERE business.state = ? AND business.city = ?
+             WHERE business.state = ? AND business.city = ? AND attribute.value = 'True'
              ORDER BY attribute.attribute_name
          """;
 
