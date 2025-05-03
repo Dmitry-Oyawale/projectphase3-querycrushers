@@ -11,11 +11,10 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.cs3431.yelpapp.YelpController">
    <center>
-      <VBox alignment="CENTER" prefHeight="900.0" prefWidth="1600.0" spacing="20.0" styleClass="root">
+      <VBox alignment="CENTER" prefHeight="700.0" prefWidth="1520.0" spacing="20.0" styleClass="root">
          <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
          </padding>
@@ -25,25 +24,33 @@
                <Label fx:id="searchText" styleClass="subtitle-text" text="Search Results">
                   <HBox.margin>
                      <Insets left="10.0" top="10.0" />
-                  </HBox.margin></Label>
+                  </HBox.margin>
+               </Label>
+
+               <Label fx:id="countText" styleClass="subtitle-text">
+                  <HBox.margin>
+                     <Insets left="550.0" top="10.0" />
+                  </HBox.margin>
+               </Label>
             </children>
+
          </HBox>
          <TableView fx:id="businessTable" prefHeight="774.0" prefWidth="1570.0">
             <columns>
-               <TableColumn fx:id="nameColumn" prefWidth="250.0" text="Name" />
-               <TableColumn fx:id="addressColumn" prefWidth="300.0" text="Address" />
-               <TableColumn fx:id="cityColumn" prefWidth="200.0" text="City" />
-               <TableColumn fx:id="starsColumn" prefWidth="150.0" text="Stars" />
-               <TableColumn fx:id="tipColumn" prefWidth="150.0" text="Tips" />
-               <TableColumn fx:id="latitudeColumn" prefWidth="250.0" text="Latitude" />
-               <TableColumn fx:id="longitudeColumn" prefWidth="250.0" text="Longitude" />
+               <TableColumn fx:id="nameColumn" minWidth="80.0" prefWidth="260.0" text="Name" />
+               <TableColumn fx:id="addressColumn" prefWidth="200.0" text="Address" />
+               <TableColumn fx:id="cityColumn" prefWidth="150.0" text="City" />
+               <TableColumn fx:id="starsColumn" prefWidth="100.0" text="Stars" />
+               <TableColumn fx:id="tipsColumn" text="Tips" />
+               <TableColumn fx:id="latitudeColumn" prefWidth="100.0" text="Latitude" />
+               <TableColumn fx:id="longitudeColumn" prefWidth="100.0" text="Longitude" />
             </columns>
          </TableView>
-         <Button text="Yelp!" />
+         <Button text="Yelp" />
       </VBox>
    </center>
    <left>
-      <ScrollPane prefHeight="220.0" prefWidth="220.0" BorderPane.alignment="CENTER">
+      <ScrollPane prefHeight="220.0" prefWidth="250.0" BorderPane.alignment="CENTER">
          <content>
             <VBox prefHeight="890.0" prefWidth="200.0" spacing="7.0">
                <children>
@@ -95,9 +102,6 @@
                   <HBox prefHeight="40.0" prefWidth="200.0">
                      <children>
                         <Label text="WiFi">
-                           <font>
-                              <Font size="11.5" />
-                           </font>
                         </Label>
                         <ComboBox fx:id="wifiComboBox" prefWidth="120.0">
                            <HBox.margin>
@@ -108,11 +112,7 @@
                   </HBox>
                   <HBox prefHeight="40.0" prefWidth="200.0">
                      <children>
-                        <Label text="Price Range ">
-                           <font>
-                              <Font size="11.5" />
-                           </font>
-                        </Label>
+                        <Label text="Price Range "></Label>
                         <ComboBox fx:id="priceComboBox" prefWidth="120.0" />
                      </children>
                   </HBox>
