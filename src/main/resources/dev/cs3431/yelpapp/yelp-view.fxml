@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.cs3431.yelpapp.YelpController">
    <center>
@@ -91,6 +92,30 @@
                      </VBox.margin>
                   </Label>
                   <ListView fx:id="attributeList" prefHeight="281.0" prefWidth="197.0" />
+                  <HBox prefHeight="40.0" prefWidth="200.0">
+                     <children>
+                        <Label text="WiFi">
+                           <font>
+                              <Font size="11.5" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="wifiComboBox" prefWidth="120.0">
+                           <HBox.margin>
+                              <Insets left="45.0" />
+                           </HBox.margin>
+                        </ComboBox>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="40.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Price Range ">
+                           <font>
+                              <Font size="11.5" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="priceComboBox" prefWidth="120.0" />
+                     </children>
+                  </HBox>
                   <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="23.0" prefWidth="197.0" text="Search">
                      <padding>
                         <Insets bottom="5.0" top="5.0" />
@@ -108,3 +133,4 @@
       </ScrollPane>
    </left>
 </BorderPane>
+
