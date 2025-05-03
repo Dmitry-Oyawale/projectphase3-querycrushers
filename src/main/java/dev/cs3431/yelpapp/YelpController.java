@@ -301,18 +301,26 @@ public class YelpController {
     @NotNull
     private List<Business> queryBusinesses(String state, List<String> categories, String city) {
         List<Business> res = new ArrayList<>();
+        String businessQuery;
 
-        if (categories.isEmpty()) return res;
-
-        StringBuilder placeholders = new StringBuilder();
-        for (int i = 0; i < categories.size(); i++) {
-            placeholders.append("?");
-            if (i < categories.size() - 1) {
-                placeholders.append(",");
-            }
+        if (categories.isEmpty()) {
+             businessQuery = """
+                SELECT business.business_id, business.name, business.street_address, business.city,
+                       business.latitude, business.longitude, business.stars, business.num_tips
+                FROM business
+                WHERE business.state = ? AND business.city = ?
+                ORDER BY business.name
+            """;
         }
-
-        String businessQuery = String.format("""
+        else {
+            StringBuilder placeholders = new StringBuilder();
+            for (int i = 0; i < categories.size(); i++) {
+                placeholders.append("?");
+                if (i < categories.size() - 1) {
+                    placeholders.append(",");
+                }
+            }
+            businessQuery = String.format("""
             SELECT business.business_id, business.name, business.street_address, business.city, business.latitude, business.longitude, business.stars, business.num_tips\s
             FROM business
             JOIN category ON business.business_id = category.business_id                                                
@@ -321,6 +329,7 @@ public class YelpController {
             HAVING COUNT(DISTINCT category.category_name) = ?
             ORDER BY business.name
         """, placeholders.toString());
+        }
 
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
@@ -339,12 +348,13 @@ public class YelpController {
             count++;}
              */
 
-            int index = 3;
-            for (String cat : categories) {
-                ps.setString(index++, cat);
+            if (!categories.isEmpty()) {
+                int index = 3;
+                for (String cat : categories) {
+                    ps.setString(index++, cat);
+                }
+                ps.setInt(index, categories.size());
             }
-
-            ps.setInt(index, categories.size());
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
