@@ -302,13 +302,25 @@ public class YelpController {
     private List<Business> queryBusinesses(String state, List<String> categories, String city) {
         List<Business> res = new ArrayList<>();
 
-        String businessQuery = """
-            SELECT business_id, name, street_address, city, latitude, longitude, stars, num_tips\s
-            FROM business
-            WHERE business.state = ? AND business.city = ?
-        """;
+        if (categories.isEmpty()) return res;
 
-        businessQuery = businessQuery.concat("ORDER BY name");
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < categories.size(); i++) {
+            placeholders.append("?");
+            if (i < categories.size() - 1) {
+                placeholders.append(",");
+            }
+        }
+
+        String businessQuery = String.format("""
+            SELECT business.business_id, business.name, business.street_address, business.city, business.latitude, business.longitude, business.stars, business.num_tips\s
+            FROM business
+            JOIN category ON business.business_id = category.business_id                                                
+            WHERE business.state = ? AND business.city = ? AND category.category_name IN (%s)
+            GROUP BY business.business_id, business.name, business.street_address, business.city, business.latitude, business.longitude, business.stars, business.num_tips
+            HAVING COUNT(DISTINCT category.category_name) = ?
+            ORDER BY business.name
+        """, placeholders.toString());
 
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
@@ -326,6 +338,14 @@ public class YelpController {
             ps.setString(count, cat);
             count++;}
              */
+
+            int index = 3;
+            for (String cat : categories) {
+                ps.setString(index++, cat);
+            }
+
+            ps.setInt(index, categories.size());
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 res.add(new Business(
