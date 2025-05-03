@@ -49,7 +49,7 @@ public class YelpController {
     @FXML
     private TableColumn<Business, String> starsColumn;
     @FXML
-    private TableColumn<Business, String> tipColumn;
+    private TableColumn<Business, String> tipsColumn;
     @FXML
     private TableColumn<Business, String> latitudeColumn;
     @FXML
@@ -70,7 +70,7 @@ public class YelpController {
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("Address"));
         cityColumn.setCellValueFactory(new PropertyValueFactory<>("City"));
         starsColumn.setCellValueFactory(new PropertyValueFactory<>("Stars"));
-        tipColumn.setCellValueFactory(new PropertyValueFactory<>("Tips"));
+        tipsColumn.setCellValueFactory(new PropertyValueFactory<>("Tips"));
         latitudeColumn.setCellValueFactory(new PropertyValueFactory<>("Latitude"));
         longitudeColumn.setCellValueFactory(new PropertyValueFactory<>("Longitude"));
 
@@ -297,63 +297,53 @@ public class YelpController {
 
 
 
-
     @NotNull
     private List<Business> queryBusinesses(String state, List<String> categories, String city) {
         List<Business> res = new ArrayList<>();
-        String businessQuery;
-
-        if (categories.isEmpty()) {
-             businessQuery = """
-                SELECT business.business_id, business.name, business.street_address, business.city,
-                       business.latitude, business.longitude, business.stars, business.num_tips
-                FROM business
-                WHERE business.state = ? AND business.city = ?
-                ORDER BY business.name
-            """;
-        }
-        else {
-            StringBuilder placeholders = new StringBuilder();
-            for (int i = 0; i < categories.size(); i++) {
-                placeholders.append("?");
-                if (i < categories.size() - 1) {
-                    placeholders.append(",");
-                }
-            }
-            businessQuery = String.format("""
-            SELECT business.business_id, business.name, business.street_address, business.city, business.latitude, business.longitude, business.stars, business.num_tips\s
-            FROM business
-            JOIN category ON business.business_id = category.business_id                                                
-            WHERE business.state = ? AND business.city = ? AND category.category_name IN (%s)
-            GROUP BY business.business_id, business.name, business.street_address, business.city, business.latitude, business.longitude, business.stars, business.num_tips
-            HAVING COUNT(DISTINCT category.category_name) = ?
-            ORDER BY business.name
-        """, placeholders.toString());
-        }
+        if (state == null || city == null) return res;
 
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+            PreparedStatement ps;
 
-        try (PreparedStatement ps = connection.prepareStatement(businessQuery)) {
-            //int count = 1;
-            ps.setString(1, state);
-            ps.setString(2, city);
-            //count++;
-            /*
-            for(String cat: categories){
-            ps.setString(count, cat);
-            count++;}
-             */
+            if (categories == null || categories.isEmpty()) {
+                // No categories selected – basic state+city filter
+                String sql = """
+                SELECT business_id, name, street_address, city, latitude, longitude, stars, num_tips
+                FROM business
+                WHERE state = ? AND city = ?
+                ORDER BY name
+            """;
+                ps = connection.prepareStatement(sql);
+                ps.setString(1, state);
+                ps.setString(2, city);
+            } else {
+                // Categories selected – must match all selected categories
+                StringBuilder sql = new StringBuilder("""
+                SELECT b.business_id, b.name, b.street_address, b.city, b.latitude, b.longitude, b.stars, b.num_tips
+                FROM business b
+                JOIN category c ON b.business_id = c.business_id
+                WHERE b.state = ? AND b.city = ? AND c.category_name IN (
+            """);
 
-            if (!categories.isEmpty()) {
-                int index = 3;
+                sql.append("?,".repeat(categories.size()));
+                sql.setLength(sql.length() - 1); // Remove trailing comma
+                sql.append("""
+                )
+                GROUP BY b.business_id, b.name, b.street_address, b.city, b.latitude, b.longitude, b.stars, b.num_tips
+                HAVING COUNT(DISTINCT c.category_name) = ?
+                ORDER BY b.name
+            """);
+
+                ps = connection.prepareStatement(sql.toString());
+
+                int i = 1;
+                ps.setString(i++, state);
+                ps.setString(i++, city);
                 for (String cat : categories) {
-                    ps.setString(index++, cat);
+                    ps.setString(i++, cat);
                 }
-                ps.setInt(index, categories.size());
+                ps.setInt(i, categories.size()); // HAVING count
             }
 
             ResultSet rs = ps.executeQuery();
@@ -369,18 +359,16 @@ public class YelpController {
                         rs.getDouble("longitude")
                 ));
             }
+
+            ps.close();
+            connection.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
 
-
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         return res;
     }
+
 
     @NotNull
     private List<Business> getSimilarBusinesses(Business selected) {
