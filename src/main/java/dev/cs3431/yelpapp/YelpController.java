@@ -27,6 +27,8 @@ public class YelpController {
     @FXML
     private Label searchText;
     @FXML
+    private Label countText;
+    @FXML
     private ComboBox<String> stateComboBox;
     @FXML
     private ComboBox<String> cityComboBox;
@@ -206,6 +208,7 @@ public class YelpController {
         List<String> attributes = new ArrayList<>(attributeList.getSelectionModel().getSelectedItems());
         List<Business> results = queryBusinesses(state, categories, attributes, city);
         businessTable.setItems(FXCollections.observableArrayList(results));
+        countText.setText(results.size() + " results");
         ;
     }
 
