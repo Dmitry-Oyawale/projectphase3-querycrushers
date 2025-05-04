@@ -41,10 +41,15 @@
                 </HBox>
                 <HBox prefHeight="22.0" prefWidth="700.0">
                     <children>
-                        <Label fx:id="titleLabel" styleClass="subtitle-text" text=" Similar to Egg Works">
+                        <Label fx:id="titleLabel" styleClass="subtitle-text" text="Similar to:">
                             <HBox.margin>
                                 <Insets bottom="10.0" left="40.0" top="10.0" />
                             </HBox.margin></Label>
+                  <Label fx:id="businessName">
+                     <HBox.margin>
+                        <Insets left="4.0" top="10.0" />
+                     </HBox.margin>
+                  </Label>
                     </children>
                 </HBox>
                 <TableView fx:id="similarBusinesses" maxWidth="-Infinity" prefHeight="700.0" prefWidth="800.0">
@@ -52,7 +57,7 @@
                         <TableColumn fx:id="rankColumn" minWidth="80.0" prefWidth="60.0" text="Rank" />
                         <TableColumn fx:id="nameColumn" prefWidth="150.0" text="Name" />
                         <TableColumn fx:id="addressColumn" prefWidth="160.0" text="Address" />
-                        <TableColumn fx:id="idColumn" prefWidth="100.0" text="ID" />
+                        <TableColumn fx:id="cityColumn" prefWidth="100.0" text="City" />
                         <TableColumn fx:id="starsColumn" text="Stars" />
                         <TableColumn fx:id="latitudeColumn" prefWidth="100.0" text="Latitude" />
                         <TableColumn fx:id="longitudeColumn" prefWidth="100.0" text="Longitude" />
