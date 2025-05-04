@@ -31,7 +31,10 @@ public class BusinessDetailsController {
         starsColumn.setCellValueFactory(new PropertyValueFactory<>("stars"));
         latitudeColumn.setCellValueFactory(new PropertyValueFactory<>("latitude"));
         longitudeColumn.setCellValueFactory(new PropertyValueFactory<>("longitude"));
+        rankColumn.setCellValueFactory(new PropertyValueFactory<>("rank"));
     }
+
+
 
     public void initData(String businessName,
                          ObservableList<Business> similars,
