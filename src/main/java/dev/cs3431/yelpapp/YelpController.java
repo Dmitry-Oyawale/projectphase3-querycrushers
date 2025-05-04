@@ -33,6 +33,10 @@ public class YelpController {
     @FXML
     private ComboBox<String> cityComboBox;
     @FXML
+    private ComboBox<String> wifiComboBox;
+    @FXML
+    private ComboBox<Integer> priceComboBox;
+    @FXML
     private Button filterButton;
     @FXML
     private ListView<String> categoryList;
@@ -68,6 +72,7 @@ public class YelpController {
                 updateCities(state);
             }
         });
+        updateWifi();
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("Address"));
         cityColumn.setCellValueFactory(new PropertyValueFactory<>("City"));
@@ -300,7 +305,43 @@ public class YelpController {
 
     }
 
+    private void updateWifi() {
 
+        ObservableList<String> wifi = FXCollections.observableArrayList();
+
+        String categoryQuery = """
+             SELECT DISTINCT attribute.value
+             FROM attribute
+             WHERE attribute.attribute_name = 'WiFi'
+             ORDER BY attribute.value
+         """;
+
+        try {
+            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(categoryQuery)) {
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                wifi.add(rs.getString("value"));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+
+        wifiComboBox.setItems(wifi);
+
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     @NotNull
     private List<Business> queryBusinesses(String state, List<String> categories, List<String> attributes, String city) {
