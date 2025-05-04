@@ -501,40 +501,59 @@ public class YelpController {
     private List<Business> getSimilarBusinesses(Business selected) {
         List<Business> res = new ArrayList<>();
 
-        String stateQuery = """
-            SELECT business_id, name, street_address, city, latitude, longitude, stars, num_tips\s
-            FROM Business
-            WHERE business_id = ?
-        """;
+        String sql = """
+        SELECT Bus2.business_ID,
+               Bus2.name,
+               Bus2.street_address,
+               Bus2.city,
+               Bus2.stars,
+               Bus2.num_tips,
+               Bus2.latitude,
+               Bus2.longitude,
+               count_categories(Bus1.business_ID, Bus2.business_ID) AS rank
+        FROM Business Bus1, Business Bus2
+        WHERE Bus1.business_ID = ?
+          AND Bus2.business_ID != Bus1.business_ID
+          AND Bus2.zip_code = Bus1.zip_code
+          AND geodistance(Bus1.latitude, Bus1.longitude, Bus2.latitude, Bus2.longitude) <= 20
+          AND EXISTS (
+              SELECT 1
+              FROM Category Cat1
+              JOIN Category Cat2 ON Cat1.category_name = Cat2.category_name
+              WHERE Cat1.business_ID = Bus1.business_ID
+                AND Cat2.business_ID = Bus2.business_ID
+          )
+        ORDER BY rank DESC
+        LIMIT 20;
+    """;
 
-        try {
-            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        try (PreparedStatement ps = connection.prepareStatement(stateQuery)) {
             ps.setString(1, selected.getId());
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
-                res.add(new Business(
-                        rs.getString("business_id"),
+                Business b = new Business(
+                        rs.getString("business_ID"),
                         rs.getString("name"),
                         rs.getString("street_address"),
                         rs.getString("city"),
-                        rs.getDouble("stars"), rs.getInt("num_tips"), rs.getDouble("latitude"), rs.getDouble("longitude")));
+                        rs.getDouble("stars"),
+                        rs.getInt("num_tips"),
+                        rs.getDouble("latitude"),
+                        rs.getDouble("longitude")
+                );
+                b.setRank(rs.getInt("rank")); 
+                res.add(b);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-
-        try {
-            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return res;
     }
+
 
     public static ObservableList<String> fetchCategoriesForBusiness(String businessId) {
         ObservableList<String> categories = FXCollections.observableArrayList();
