@@ -37,9 +37,13 @@
             </HBox>
             <TableView fx:id="similarBusinesses" prefHeight="572.0" prefWidth="700.0">
               <columns>
-                <TableColumn fx:id="nameColumn" prefWidth="180.0" text="Name" />
-                <TableColumn fx:id="addressColumn" prefWidth="200.0" text="Address" />
+                  <TableColumn fx:id="nameColumn" minWidth="80.0" prefWidth="180.0" text="Name" />
+                  <TableColumn fx:id="addressColumn" prefWidth="200.0" text="Address" />
                   <TableColumn fx:id="cityColumn" prefWidth="100.0" text="City" />
+                  <TableColumn fx:id="starsColumn" prefWidth="100.0" text="Stars" />
+                  <TableColumn fx:id="tipsColumn" text="Tips" />
+                  <TableColumn fx:id="latitudeColumn" prefWidth="100.0" text="Latitude" />
+                  <TableColumn fx:id="longitudeColumn" prefWidth="100.0" text="Longitude" />
               </columns>
             </TableView>
          </children>
