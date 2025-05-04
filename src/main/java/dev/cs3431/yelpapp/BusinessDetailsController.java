@@ -11,20 +11,20 @@ public class BusinessDetailsController {
 
     @FXML private Label titleLabel;
     @FXML private TableView<Business> similarBusinesses;
+    @FXML private TableColumn<Business, Integer> rankColumn;
     @FXML private TableColumn<Business, String> nameColumn;
     @FXML private TableColumn<Business, String> addressColumn;
     @FXML private TableColumn<Business, String> cityColumn;
     @FXML private TableColumn<Business, String> starsColumn;
-    @FXML private TableColumn<Business, Double> tipsColumn;
     @FXML private TableColumn<Business, Double> latitudeColumn;
     @FXML private TableColumn<Business, Double> longitudeColumn;
 
     @FXML public void initialize (){
+        rankColumn.setCellValueFactory(new PropertyValueFactory<>("rank"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
         cityColumn.setCellValueFactory(new PropertyValueFactory<>("city"));
         starsColumn.setCellValueFactory(new PropertyValueFactory<>("stars"));
-        tipsColumn.setCellValueFactory(new PropertyValueFactory<>("tips"));
         latitudeColumn.setCellValueFactory(new PropertyValueFactory<>("latitude"));
         longitudeColumn.setCellValueFactory(new PropertyValueFactory<>("longitude"));
     }
