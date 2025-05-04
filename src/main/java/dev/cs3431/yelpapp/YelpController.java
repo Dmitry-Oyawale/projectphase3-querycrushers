@@ -33,10 +33,6 @@ public class YelpController {
     @FXML
     private ComboBox<String> cityComboBox;
     @FXML
-    private ComboBox<String> wifiComboBox;
-    @FXML
-    private ComboBox<Integer> priceComboBox;
-    @FXML
     private Button filterButton;
     @FXML
     private ListView<String> categoryList;
@@ -60,6 +56,10 @@ public class YelpController {
     private TableColumn<Business, String> latitudeColumn;
     @FXML
     private TableColumn<Business, String> longitudeColumn;
+    @FXML
+    private ComboBox<String> wifiComboBox;
+    @FXML
+    private ComboBox<Integer> priceComboBox;
 
 
 
@@ -73,6 +73,7 @@ public class YelpController {
             }
         });
         updateWifi();
+        updatePriceRange();
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("Address"));
         cityColumn.setCellValueFactory(new PropertyValueFactory<>("City"));
@@ -211,10 +212,12 @@ public class YelpController {
         String city = cityComboBox.getSelectionModel().getSelectedItem();
         List<String> categories = new ArrayList<>(categoryList.getSelectionModel().getSelectedItems());
         List<String> attributes = new ArrayList<>(attributeList.getSelectionModel().getSelectedItems());
-        List<Business> results = queryBusinesses(state, categories, attributes, city);
+        Integer price = priceComboBox.getSelectionModel().getSelectedItem();
+        String wifi = wifiComboBox.getSelectionModel().getSelectedItem();
+        List<Business> results = queryBusinesses(state, categories, attributes, city, wifi, price);
         businessTable.setItems(FXCollections.observableArrayList(results));
         countText.setText(results.size() + " results");
-        ;
+
     }
 
     private void updateCategories(String state, String city) {
@@ -305,46 +308,10 @@ public class YelpController {
 
     }
 
-    private void updateWifi() {
 
-        ObservableList<String> wifi = FXCollections.observableArrayList();
-
-        String categoryQuery = """
-             SELECT DISTINCT attribute.value
-             FROM attribute
-             WHERE attribute.attribute_name = 'WiFi'
-             ORDER BY attribute.value
-         """;
-
-        try {
-            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-
-        try (PreparedStatement ps = connection.prepareStatement(categoryQuery)) {
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                wifi.add(rs.getString("value"));
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-
-
-        wifiComboBox.setItems(wifi);
-
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     @NotNull
-    private List<Business> queryBusinesses(String state, List<String> categories, List<String> attributes, String city) {
+    private List<Business> queryBusinesses(String state, List<String> categories, List<String> attributes, String city, String wifi, Integer price) {
         List<Business> res = new ArrayList<>();
         if (state == null || city == null) return res;
 
@@ -358,9 +325,23 @@ public class YelpController {
 
             boolean hasCats = categories != null && !categories.isEmpty();
             boolean hasAttrs = attributes != null && !attributes.isEmpty();
+            boolean hasWifi = wifi != null && !wifi.isEmpty();
+            boolean hasPrice = price != null;
 
             if (hasCats) sql.append("JOIN category c ON b.business_id = c.business_id\n");
+
             if (hasAttrs) sql.append("JOIN attribute a ON b.business_id = a.business_id\n");
+
+            if (hasWifi) {
+                sql.append("""
+                JOIN attribute aw ON b.business_id = aw.business_id
+                """);
+            }
+            if (hasPrice) {
+                sql.append("""
+                JOIN attribute ap ON b.business_id = ap.business_id
+                """);
+            }
 
             sql.append("WHERE b.state = ? AND b.city = ?\n");
 
@@ -380,6 +361,16 @@ public class YelpController {
                 sql.setLength(sql.length() - 1);
                 sql.append(") AND a.value = 'True'\n");
                 params.addAll(attributes);
+            }
+
+            if (hasWifi) {
+                sql.append("AND aw.attribute_name = 'WiFi' AND aw.value = ?\n");
+                params.add(wifi);
+            }
+
+            if (hasPrice) {
+                sql.append("AND ap.attribute_name = 'RestaurantsPriceRange2' AND ap.value = ?\n");
+                params.add(String.valueOf(price));
             }
 
             sql.append("""
@@ -429,7 +420,81 @@ public class YelpController {
         return res;
     }
 
+    private void updateWifi() {
 
+        ObservableList<String> wifi = FXCollections.observableArrayList();
+
+        String categoryQuery = """
+             SELECT DISTINCT attribute.value
+             FROM attribute
+             WHERE attribute.attribute_name = 'WiFi'
+             ORDER BY attribute.value
+         """;
+
+        try {
+            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(categoryQuery)) {
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                wifi.add(rs.getString("value"));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+
+        wifiComboBox.setItems(wifi);
+
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @NotNull
+    private void updatePriceRange() {
+
+        ObservableList<Integer> prices = FXCollections.observableArrayList();
+
+        String priceQuery = """
+             SELECT DISTINCT attribute.value
+             FROM attribute
+             WHERE attribute.attribute_name = 'RestaurantsPriceRange2'
+             ORDER BY attribute.value
+         """;
+
+        try {
+            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(priceQuery)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                prices.add(rs.getInt("value"));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+
+        priceComboBox.setItems(prices);
+
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     @NotNull
     private List<Business> getSimilarBusinesses(Business selected) {
