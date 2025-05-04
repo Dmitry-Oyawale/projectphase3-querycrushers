@@ -223,7 +223,7 @@ public class YelpController {
 
     private void updateCategories(String state, String city) {
         // String state = stateComboBox.getSelectionModel().getSelectedItem();
-        if (state == null || city == null) {
+        if (state == null) {
             return;
         }
 
@@ -233,7 +233,8 @@ public class YelpController {
              SELECT DISTINCT category.category_name
              FROM category
              JOIN business ON business.business_id = category.business_id
-             WHERE business.state = ? AND business.city = ?
+             WHERE business.state = ?
+                 """ + (city != null ? " AND business.city = ?" : "") + """
              ORDER BY category.category_name
          """;
 
@@ -245,7 +246,7 @@ public class YelpController {
 
         try (PreparedStatement ps = connection.prepareStatement(categoryQuery)) {
             ps.setString(1, state);
-            ps.setString(2, city);
+            if (city != null) ps.setString(2, city);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 categories.add(rs.getString("category_name"));
@@ -267,7 +268,7 @@ public class YelpController {
 
     private void updateAttributes(String state, String city) {
         // String state = stateComboBox.getSelectionModel().getSelectedItem();
-        if (state == null || city == null) {
+        if (state == null) {
             return;
         }
 
@@ -277,7 +278,9 @@ public class YelpController {
              SELECT DISTINCT attribute.attribute_name
              FROM attribute
              JOIN business ON business.business_id = attribute.business_id
-             WHERE business.state = ? AND business.city = ? AND attribute.value = 'True'
+             WHERE business.state = ?
+                 """ + (city != null ? " AND business.city = ?" : "") + """ 
+               AND attribute.value = 'True'
              ORDER BY attribute.attribute_name
          """;
 
@@ -289,7 +292,7 @@ public class YelpController {
 
         try (PreparedStatement ps = connection.prepareStatement(categoryQuery)) {
             ps.setString(1, state);
-            ps.setString(2, city);
+            if (city != null) ps.setString(2, city);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 attributes.add(rs.getString("attribute_name"));
@@ -311,10 +314,9 @@ public class YelpController {
 
 
 
-    @NotNull
     private List<Business> queryBusinesses(String state, List<String> categories, List<String> attributes, String city, String wifi, Integer price) {
         List<Business> res = new ArrayList<>();
-        if (state == null || city == null) return res;
+        if (state == null) return res;
 
         try {
             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
@@ -344,11 +346,14 @@ public class YelpController {
                 """);
             }
 
-            sql.append("WHERE b.state = ? AND b.city = ?\n");
+            sql.append("WHERE b.state = ?\n");
 
             List<Object> params = new ArrayList<>();
             params.add(state);
-            params.add(city);
+            if (city != null) {
+                sql.append("AND b.city = ?\n");
+                params.add(city);
+            }
 
             if (hasCats) {
                 sql.append("AND c.category_name IN (").append("?,".repeat(categories.size()));
@@ -459,7 +464,6 @@ public class YelpController {
 
     }
 
-    @NotNull
     private void updatePriceRange() {
 
         ObservableList<Integer> prices = FXCollections.observableArrayList();
@@ -544,7 +548,7 @@ public class YelpController {
                         rs.getDouble("latitude"),
                         rs.getDouble("longitude")
                 );
-                b.setRank(rs.getInt("rank")); 
+                b.setRank(rs.getInt("rank"));
                 res.add(b);
             }
         } catch (SQLException e) {
