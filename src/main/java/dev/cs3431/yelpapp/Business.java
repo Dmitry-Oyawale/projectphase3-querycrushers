@@ -1,6 +1,6 @@
-package querycrusher.yelpapp;
+package dev.cs3431.yelpapp;
 
-public class Business{
+public class Business {
     private final String id;
     private final String name;
     private final String address;
@@ -10,6 +10,7 @@ public class Business{
     private final Double latitude;
     private final Double longitude;
 
+    private Integer rank;
 
     public Business(String id, String name, String address, String city, Double stars, Integer tips, Double latitude, Double longitude) {
         this.id = id;
@@ -35,19 +36,30 @@ public class Business{
     }
 
     public String getCity() {
-    return city;
+        return city;
     }
 
     public Double getStars() {
         return stars;
     }
+
     public Integer getTips() {
         return tips;
     }
+
     public Double getLatitude() {
         return latitude;
     }
+
     public Double getLongitude() {
         return longitude;
+    }
+
+    public Integer getRank() {
+        return rank;
+    }
+
+    public void setRank(Integer rank) {
+        this.rank = rank;
     }
 }
