@@ -12,7 +12,7 @@ public class YelpApp extends Application {
     public void start(Stage stage) throws IOException {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(YelpApp.class.getResource("yelp-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 1280, 960);
+            Scene scene = new Scene(fxmlLoader.load(), 1300, 900);
             scene.getStylesheets()
                     .add(getClass().getResource("/styles/styles.css").toExternalForm());
             stage.setTitle("YelpApp!");
