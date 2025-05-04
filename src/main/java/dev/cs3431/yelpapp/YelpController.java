@@ -118,25 +118,26 @@ public class YelpController {
             Parent root = fxmlLoader.load();
             BusinessDetailsController controller = fxmlLoader.getController();
 
-            ObservableList<Business> businesses = FXCollections.observableArrayList(
-                    getSimilarBusinesses(selected)
-            );
-            controller.initData(selected.getName(), businesses);
+            ObservableList<Business> businesses = FXCollections.observableArrayList(getSimilarBusinesses(selected));
+            ObservableList<String> categories = fetchCategoriesForBusiness(selected.getId());
+            ObservableList<String> attributes = fetchAttributesForBusiness(selected.getId());
+
+            controller.initData(selected.getName(), businesses, categories, attributes);
 
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initOwner(businessTable.getScene().getWindow());
             dialog.setTitle("Business Details");
 
-            Scene scene = new Scene(root, 695, 700);
-            scene.getStylesheets()
-                    .add(getClass().getResource("/styles/styles.css").toExternalForm());
+            Scene scene = new Scene(root, 850, 850);
+            scene.getStylesheets().add(getClass().getResource("/styles/styles.css").toExternalForm());
             dialog.setScene(scene);
             dialog.showAndWait();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
+
 
     private void updateStates() {
         ObservableList<String> states = FXCollections.observableArrayList();
@@ -534,5 +535,47 @@ public class YelpController {
         }
         return res;
     }
+
+    public static ObservableList<String> fetchCategoriesForBusiness(String businessId) {
+        ObservableList<String> categories = FXCollections.observableArrayList();
+        String sql = "SELECT category_name FROM category WHERE business_id = ? ORDER BY category_name";
+
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, businessId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                categories.add(rs.getString("category_name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return categories;
+    }
+
+    public static ObservableList<String> fetchAttributesForBusiness(String businessId) {
+        ObservableList<String> attributes = FXCollections.observableArrayList();
+        String sql = """
+        SELECT attribute_name, value
+        FROM attribute
+        WHERE business_id = ? AND value != 'False'
+        ORDER BY attribute_name
+    """;
+
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, businessId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                attributes.add(rs.getString("attribute_name") + "(" + rs.getString("value")+ ")");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return attributes;
+    }
+
 
 }
