@@ -1,8 +1,7 @@
 .root {
-    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
-    -fx-font-size: 20px;
+    -fx-font-family: 'Times New Roman','Segoe UI', sans-serif;
+    -fx-font-size: 14px;
     -fx-background-color: #FFFFFF;
-
     -yelp-color: #3289d5;
     -yelp-color-light: rgba(137, 197, 230, 0.25);
     -primary-text: #2D2E2F;
@@ -11,6 +10,7 @@
     -border-color: #E6E6E6;
     -title-color: #123f73;
 }
+
 .subtitle-text {
     -fx-text-fill: -title-color;
     -fx-font-size: 15px;
@@ -31,7 +31,6 @@
     -fx-padding: 2px;
 }
 
-
 .list-view .list-cell:filled:selected {
     -fx-background-color: derive(-yelp-color, 60%);
     -fx-text-fill: -primary-text;
@@ -41,7 +40,7 @@
 
 .list-view .list-cell:filled:hover {
     -fx-background-color: -yelp-color-light;
-    -fx-text-fill: yelp-color;
+    -fx-text-fill: -yelp-color;
     -fx-border-width: 1;
     -fx-border-color: -yelp-color;
 }
