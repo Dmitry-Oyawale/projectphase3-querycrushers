@@ -267,7 +267,7 @@ public class YelpController {
     }
 
     private void updateAttributes(String state, String city) {
-        // String state = stateComboBox.getSelectionModel().getSelectedItem();
+        // String state = stateComboBox.getSelectionModel().getSelectedItem(); 
         if (state == null) {
             return;
         }
