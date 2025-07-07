@@ -4,21 +4,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.cs3431.yelpapp.YelpController">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="dev.cs3431.yelpapp.YelpController">
+
     <left>
         <VBox spacing="10.0" padding="10">
             <Label text="State" />
             <ComboBox fx:id="stateComboBox" prefWidth="200" />
+
             <Label text="City" />
             <ComboBox fx:id="cityComboBox" prefWidth="200" />
+
             <Label text="WiFi" />
             <ComboBox fx:id="wifiComboBox" prefWidth="200" />
+
             <Label text="Price" />
             <ComboBox fx:id="priceComboBox" prefWidth="200" />
+
             <Label text="Open Status" />
             <ComboBox fx:id="openStatusComboBox" prefWidth="200" />
+
             <Label text="Max Results" />
             <ComboBox fx:id="resultLimitComboBox" prefWidth="200" />
+
             <Button fx:id="searchButton" text="Search" prefWidth="200" />
             <Button fx:id="clearButton" text="Clear Filters" prefWidth="200" />
         </VBox>
@@ -27,6 +36,7 @@
     <center>
         <VBox spacing="10.0" padding="10">
             <Label fx:id="countText" styleClass="subtitle-text" text="0 results" />
+
             <TableView fx:id="businessTable" prefHeight="600">
                 <columns>
                     <TableColumn fx:id="nameColumn" text="Name" prefWidth="200" />
@@ -40,5 +50,6 @@
             </TableView>
         </VBox>
     </center>
+
 </BorderPane>
 
