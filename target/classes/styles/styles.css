@@ -1,9 +1,9 @@
 .root {
-    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
+    -fx-font-family: 'Segoe UI', 'Arial', sans-serif;
     -fx-font-size: 20px;
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: #FAFAFA;
 
-    -yelp-color: #3289d5;
+    -yelp-color: #2E8B57;
     -yelp-color-light: rgba(137, 197, 230, 0.25);
     -primary-text: #2D2E2F;
     -secondary-text: #757280;
@@ -18,30 +18,16 @@
     -fx-padding: 2px 5px 2px 10px;
 }
 
-.list-view {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: -border-color;
-    -fx-border-width: 1;
-    -fx-background-radius: 4;
-    -fx-border-radius: 4;
-}
+// RELATIONS.sql (UPDATED)
+ALTER TABLE Users RENAME COLUMN tip_count TO total_tips;
+ALTER TABLE Attribute RENAME COLUMN attribute_name TO attr_name;
 
-.list-view .list-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 2px;
-}
+CREATE TABLE Bookmark(
+    user_ID CHAR(22),
+    business_ID CHAR(22),
+    PRIMARY KEY(user_ID, business_ID),
+    FOREIGN KEY (user_ID) REFERENCES Users(user_ID),
+    FOREIGN KEY (business_ID) REFERENCES Business(business_ID)
+);
 
-
-.list-view .list-cell:filled:selected {
-    -fx-background-color: derive(-yelp-color, 60%);
-    -fx-text-fill: -primary-text;
-    -fx-border-color: -yelp-color;
-    -fx-border-width: 1;
-}
-
-.list-view .list-cell:filled:hover {
-    -fx-background-color: -yelp-color-light;
-    -fx-text-fill: yelp-color;
-    -fx-border-width: 1;
-    -fx-border-color: -yelp-color;
-}
+ALTER TABLE Business ADD COLUMN review_count INTEGER DEFAULT 0;
