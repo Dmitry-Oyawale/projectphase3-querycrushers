@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
 public class YelpApp extends Application {
@@ -12,10 +11,9 @@ public class YelpApp extends Application {
     public void start(Stage stage) throws IOException {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(YelpApp.class.getResource("yelp-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 1300, 900);
-            scene.getStylesheets()
-                    .add(getClass().getResource("/styles/styles.css").toExternalForm());
-            stage.setTitle("YelpApp!");
+            Scene scene = new Scene(fxmlLoader.load(), 1350, 920);
+            scene.getStylesheets().add(getClass().getResource("/styles/styles.css").toExternalForm());
+            stage.setTitle("MyYelp Explorer");
             stage.setScene(scene);
             stage.show();
         } catch (Exception ex) {
