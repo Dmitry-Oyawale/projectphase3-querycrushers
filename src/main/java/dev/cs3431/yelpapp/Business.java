@@ -9,7 +9,6 @@ public class Business {
     private final Integer tips;
     private final Double latitude;
     private final Double longitude;
-
     private Integer rank;
 
     public Business(String id, String name, String address, String city, Double stars, Integer tips, Double latitude, Double longitude) {
@@ -23,43 +22,18 @@ public class Business {
         this.longitude = longitude;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public String getAddress() { return address; }
+    public String getCity() { return city; }
+    public Double getStars() { return stars; }
+    public Integer getTips() { return tips; }
+    public Double getLatitude() { return latitude; }
+    public Double getLongitude() { return longitude; }
+    public Integer getRank() { return rank; }
+    public void setRank(Integer rank) { this.rank = rank; }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public Double getStars() {
-        return stars;
-    }
-
-    public Integer getTips() {
-        return tips;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public Integer getRank() {
-        return rank;
-    }
-
-    public void setRank(Integer rank) {
-        this.rank = rank;
+    public boolean isHighlyRated() {
+        return stars != null && stars >= 4.5;
     }
 }
