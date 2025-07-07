@@ -88,3 +88,16 @@ CREATE TABLE Business_hour(
     PRIMARY KEY(day_of_the_week, business_ID),
     FOREIGN KEY (business_ID) REFERENCES Business(business_ID)
 );
+
+ALTER TABLE Users RENAME COLUMN tip_count TO total_tips;
+ALTER TABLE Attribute RENAME COLUMN attribute_name TO attr_name;
+
+CREATE TABLE Bookmark(
+    user_ID CHAR(22),
+    business_ID CHAR(22),
+    PRIMARY KEY(user_ID, business_ID),
+    FOREIGN KEY (user_ID) REFERENCES Users(user_ID),
+    FOREIGN KEY (business_ID) REFERENCES Business(business_ID)
+);
+
+ALTER TABLE Business ADD COLUMN review_count INTEGER DEFAULT 0;
